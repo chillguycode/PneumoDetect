@@ -1,3 +1,9 @@
+# Directories
 temp
 mlruns
 saved_models
+dataset
+
+
+# Python Bytecode
+__pycache__/
