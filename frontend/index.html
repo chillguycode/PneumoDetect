@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pneumonia Detection</title>
+    <!-- Link to our CSS file -->
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="container">
+	    <div class="logo">
+		    <img src="/static/assets/Logo-lightMode.png">
+	    </div>
+        <p>Upload a chest X-ray image to classify it as Normal or Pneumonia.</p>
+        
+        <div class="uploader">
+            <!-- This input allows file selection -->
+            <input id="imageUpload" type="file" accept="image/jpeg, image/png">
+            <label for="imageUpload">Choose an Image</label>
+        </div>
+
+        <div class="preview">
+            <!-- This is where the selected image preview will be shown -->
+            <img id="imagePreview" src="" alt="Image preview">
+            <p id="previewText">Image preview will appear here</p>
+        </div>
+        
+        <!-- The predict button, initially disabled -->
+        <button id="predictButton" disabled>Predict</button>
+        
+        <!-- The results section, initially hidden -->
+        <div id="results" class="hidden">
+            <h2>Results</h2>
+            <p><strong>Class:</strong> <span id="resultClass"></span></p>
+            <p><strong>Confidence:</strong> <span id="resultConfidence"></span></p>
+        </div>
+
+        <!-- A simple loader element, also hidden initially -->
+        <div id="loader" class="hidden">
+            <div class="spinner"></div>
+            <p>Analyzing image...</p>
+        </div>
+    </div>
+
+    <!-- Link to our JavaScript file. 'defer' makes it load after the HTML. -->
+    <script src="/static/js/script.js" defer></script>
+</body>
+</html>
