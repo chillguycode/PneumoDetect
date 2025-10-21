@@ -9,7 +9,7 @@ const resultConfidence = document.getElementById('resultConfidence');
 const loader = document.getElementById('loader');
 
 // Define the URL of your FastAPI endpoint
-const API_ENDPOINT = 'http://127.0.0.1:8000/predict';
+const API_ENDPOINT = '/predict'
 
 // Add an event listener for when a file is selected
 imageUpload.addEventListener('change', (event) => {

@@ -1,9 +1,14 @@
 # Directories
-temp
-mlruns
-saved_models
-dataset
+temp/
+mlruns/
+saved_models/
+dataset/
+env/
+ml_src/
 
 
 # Python Bytecode
 __pycache__/
+*.pyc
+*.pyo
+*.pyd

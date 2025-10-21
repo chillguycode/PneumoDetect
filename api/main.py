@@ -1,9 +1,5 @@
-
 from fastapi import FastAPI, HTTPException, UploadFile, File
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
-
 from .pipeline import InfPipeline
 from pathlib import Path
 
@@ -49,10 +45,3 @@ async def predict(file: UploadFile=File(...)):
         return result
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"An unexpected error occurred: {str(e)}")
-
-
-app.mount("/static", StaticFiles(directory=Path(__file__).parent.parent / "frontend"), name="static")
-
-@app.get("/")
-async def read_index():
-    return FileResponse(Path(__file__).parent.parent / "frontend" / "index.html")
