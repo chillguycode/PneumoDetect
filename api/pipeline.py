@@ -46,7 +46,7 @@ class InfPipeline:
             input_batch = input_tensor.unsqueeze(0)
             onnx_input = {self.input_name: input_batch.numpy()}
             raw_output: list[np.ndarray] = self.session.run(None, onnx_input)
-            logits_np = np.ndarray = raw_output[0][0]
+            logits_np = raw_output[0][0]
             logits_tensor = torch.from_numpy(logits_np)
             probabilites = torch.nn.functional.softmax(logits_tensor, dim=0)
             confidence_tensor, predicted_idx_tensor = torch.max(probabilites,0)

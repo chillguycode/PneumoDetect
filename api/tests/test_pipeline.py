@@ -6,26 +6,30 @@ from PIL import Image
 import io
 
 
-def test_pipeline_intialization(pipeline_instance: InfPipeline):
+# Test 1: Successful initialisation
+def test_pipeline_initialization(pipeline_instance: InfPipeline):
     assert pipeline_instance is not None
     assert pipeline_instance.session is not None
     assert pipeline_instance.class_names == ["NORMAL", "PNEUMONIA"]
 
 
+# Test 2: Initialisation failure with a bad path
 def test_pipeline_init_fails_with_bad_path():
     with pytest.raises(Exception):
         InfPipeline(model_path="non_existent/path/model.onnx")
 
 
+# Test 3: Successful prediction on a valid image
 def test_predict_success(pipeline_instance: InfPipeline, valid_image_bytes: bytes):
     result = pipeline_instance.predict(valid_image_bytes)
     assert "error" not in result
-    assert "clas" in result
+    assert "class" in result
     assert "confidence" in result
     assert result["class"] in pipeline_instance.class_names
     assert 0.0 <= result["confidence"] <= 1.0
 
 
+# Test 4: Prediction on a grayscale image(testing the .convert('RGB') logic)
 def test_predict_on_grayscale_image(pipeline_instance: InfPipeline):
     image = Image.new('L', (100,100), color = 'white')
     byte_arr = io.BytesIO()
@@ -37,7 +41,8 @@ def test_predict_on_grayscale_image(pipeline_instance: InfPipeline):
     assert "class" in result
 
 
-def test_predict_invalid_bytes(pipeline_instance: InfPipeline):
+# Test 5: Prediction failure with invalid bytes
+def test_predict_invalid_bytes(pipeline_instance: InfPipeline, non_image_bytes:bytes):
     result = pipeline_instance.predict(non_image_bytes)
     assert "error" in result
     assert "details" in result
