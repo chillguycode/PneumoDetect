@@ -5,6 +5,7 @@ saved_models/
 dataset/
 env/
 ml_src/
+saved_models_test/
 
 
 # Python Bytecode
