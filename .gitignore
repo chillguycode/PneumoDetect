@@ -1,10 +1,12 @@
 # Directories
 temp/
 mlruns/
-saved_models/
 dataset/
 env/
 ml_src/
+saved_models/base\ run\ -\ 1\ epoch
+saved_models/full\ run\ -\ 20\ epoch
+saved_models/best\ model
 saved_models_test/
 
 

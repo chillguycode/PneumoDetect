@@ -1,8 +1,9 @@
 # PneumoDetect: Chest X-Ray Analysis
 
 ![PneumoDetect Logo](./assets/Readme-Logo.png)
+[![Backend CI Pipeline](https://github.com/YOUR_USERNAME/YOUR_REPO_NAME/actions/workflows/tests.yml/badge.svg)](https://github.com/YOUR_USERNAME/YOUR_REPO_NAME/actions)
 
-PneumoDetect is a full-stack web application designed to classify chest X-ray images for the detection of pneumonia. It leverages a powerful deep learning model served via a high-performance FastAPI backend, with a clean, responsive front end for user interaction. The entire application is containerized with Docker for easy setup and consistent deployment.
+PneumoDetect is a full-stack web application designed to classify chest X-ray images for the detection of pneumonia. It leverages a powerful deep learning model served via a high-performance FastAPI backend, with a clean, responsive front end for user interaction. The entire application is containerized with Docker for easy setup and is automatically tested using a GitHub Actions CI pipeline.
 
 ## Features
 
@@ -10,7 +11,8 @@ PneumoDetect is a full-stack web application designed to classify chest X-ray im
 -   **Efficient ML Inference:** Utilizes a pre-trained `EfficientNetV2-S` model converted to the ONNX format for fast, CPU-based inference.
 -   **Clean & Responsive Frontend:** A simple user interface built with HTML, CSS, and vanilla JavaScript that works on both desktop and mobile.
 -   **Fully Containerized:** The entire application stack (Frontend Web Server & Backend API) is managed by Docker and Docker Compose for one-command setup.
--   **Scalable Architecture:** The separate frontend (Nginx) and backend (Uvicorn) containers represent a production-ready pattern that can be scaled independently.
+-   **Automated Testing:** A comprehensive test suite using `pytest` validates the backend logic and API endpoints.
+-   **Continuous Integration:** A GitHub Actions workflow automatically runs all tests on every push and pull request to ensure code quality.
 
 ## Tech Stack
 
@@ -22,9 +24,11 @@ PneumoDetect is a full-stack web application designed to classify chest X-ray im
 | **Frontend**| ![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white) | Structure of the web application. |
 | | ![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white) | Styling the user interface. |
 | | ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black) | Handling user interaction and API calls. |
-| **Deployment**| ![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white) | Containerization of the application. |
+| **Testing** | ![Pytest](https://img.shields.io/badge/Pytest-0A9EDC?style=for-the-badge&logo=pytest&logoColor=white) | A robust framework for testing the Python backend. |
+| **Deployment & CI/CD**| ![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white) | Containerization of the application. |
 | | **Docker Compose** | Orchestrating the multi-container setup. |
 | | ![Nginx](https://img.shields.io/badge/Nginx-009639?style=for-the-badge&logo=nginx&logoColor=white) | Serving the frontend and acting as a reverse proxy. |
+| | ![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?style=for-the-badge&logo=github-actions&logoColor=white) | Automating the CI testing pipeline. |
 
 ## Project Structure
 
@@ -32,21 +36,34 @@ The project is organized into a clean, scalable structure:
 
 ```
 .
-├── api/                  # Contains all backend FastAPI code
-│   ├── Dockerfile        # Blueprint for the backend container
-│   └── main.py           # Main FastAPI application logic
-│   └── pipeline.py       # Handles the ONNX model inference
-├── frontend/             # Contains all frontend code and assets
-│   ├── assets/           # Logos and other static images
+├── .github/
+│   └── workflows/
+│       └── tests.yml-------------------# GitHub Actions workflow for CI
+├── api/
+│   ├── tests/--------------------------# Backend tests
+│   │   ├── conftest.py-----------------# Pytest fixtures and test setup
+│   │   ├── create_dummy_model.py-------# Generates a lightweight model for testing
+│   │   ├── test_main.py----------------# Tests for the FastAPI API layer (main.py)
+│   │   └── test_pipeline.py------------# Unit tests for the inference logic (pipeline.py)
+│   ├── Dockerfile----------------------# Blueprint for the backend container
+│   ├── main.py-------------------------# Main FastAPI application logic
+│   └── pipeline.py---------------------# Handles the ONNX model inference
+├── frontend/
+│   ├── assets/
 │   ├── css/
 │   ├── js/
-│   ├── Dockerfile        # Blueprint for the frontend Nginx container
-│   ├── index.html        # Main HTML file
-│   └── nginx.conf        # Nginx configuration for serving files and proxying API
-├── saved_models/         # Stores the trained .onnx model file
-├── .dockerignore         # Specifies files to ignore during Docker builds
-├── docker-compose.yml    # Defines how to run the frontend and backend together
-└── requirements.txt      # Python dependencies for the backend
+│   ├── Dockerfile----------------------# Blueprint for the frontend Nginx container
+│   ├── index.html
+│   └── nginx.conf
+├── saved_models/
+│   └── efficientnet_v2_s_best.onnx-----# The trained .onnx model file
+├── .dockerignore
+├── docker-compose.yml
+├── .gitignore
+├── .gitattributes----------------------# Configures Git LFS for .onnx files
+└── requirements.txt--------------------# Python dependencies
+
+
 ```
 
 ---
@@ -62,17 +79,18 @@ You must have the following software installed:
 -   **Docker:** [Get Docker](https://docs.docker.com/get-docker/)
 -   **Docker Compose:** (Usually included with Docker Desktop)
 -   **Git:** [Get Git](https://git-scm.com/downloads)
+-   **Git LFS:** [Install Git LFS](https://git-lfs.com/). This is required to download the trained model file.
 
 ### Installation & Setup
 
 1.  **Clone the repository:**
     ```bash
-    git clone <your-repository-url>
-    cd <repository-folder-name>
+    git clone https://github.com/YOUR_USERNAME/YOUR_REPO_NAME.git
+    cd YOUR_REPO_NAME
     ```
 
-2.  **Check `requirements.txt`:**
-    Ensure this file exists and contains the necessary Python libraries (e.g., `fastapi`, `uvicorn`, `onnxruntime`, `torchvision`). If not, you may need to generate it from your Python environment.
+2.  **Update the CI Badge (Optional):**
+    In `README.md`, replace `YOUR_USERNAME` and `YOUR_REPO_NAME` in the badge URL at the top of the file with your actual GitHub username and repository name.
 
 ---
 
@@ -105,6 +123,40 @@ With Docker and Docker Compose, running the entire application is a single comma
 
 ---
 
+## Testing and Continuous Integration
+
+### Running Tests Locally
+
+The backend includes a comprehensive test suite using `pytest`.
+
+1.  **Install development dependencies:**
+    Ensure your `requirements.txt` includes `pytest`, `pytest-mock`, `httpx` and `onnx`. Then install them into your virtual environment:
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+2.  **Run the test suite:**
+    From the root directory of the project, execute `pytest`:
+    ```bash
+    python -m pytest
+    ```
+    This will automatically discover and run all tests in the `api/tests/` directory.
+
+### Continuous Integration (CI)
+
+This project uses **GitHub Actions** to automatically run the test suite for every `push` and `pull request` to the `main` and `develop` branches. This ensures that new changes do not break existing functionality.
+
+The workflow is defined in the `.github/workflows/tests.yml` file and performs the following steps:
+1.  Checks out the latest code.
+2.  Sets up a specific version of Python.
+3.  Installs all required dependencies from `requirements.txt`.
+4.  Generates a dummy ONNX model to make tests fast and self-contained.
+5.  Runs the entire `pytest` suite.
+
+You can view the status and logs of the CI runs under the "Actions" tab of this repository.
+
+---
+
 ## API Endpoint Documentation
 
 The API is not directly exposed to the host machine. All requests must go through the Nginx proxy running on port `8080`.
@@ -120,19 +172,6 @@ The API is not directly exposed to the host machine. All requests must go throug
 ```bash
 curl -X POST -F "file=@/path/to/your/xray.jpeg" http://localhost:8080/predict
 ```
-*(Note: This command sends the request to the frontend Nginx container, which then securely proxies it to the backend API container.)*
-
-#### For Backend Developers
-If you need to test the API directly (bypassing the Nginx proxy), you can temporarily uncomment the `ports` section under the `backend` service in your `docker-compose.yml` file and rebuild:
-```yaml
-# In docker-compose.yml
-services:
-  backend:
-    # ...
-    ports:          # Add a port section in the Docker-Compose yaml file
-      - "8000:8000" # create a suitable port to expose the API
-```
-After running `docker-compose up --build`, you can then use `http://localhost:8000/predict`.
 
 #### Success Response (200 OK)
 ```json
