@@ -30,6 +30,21 @@ PneumoDetect is a full-stack web application designed to classify chest X-ray im
 | | ![Nginx](https://img.shields.io/badge/Nginx-009639?style=for-the-badge&logo=nginx&logoColor=white) | Serving the frontend and acting as a reverse proxy. |
 | | ![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?style=for-the-badge&logo=github-actions&logoColor=white) | Automating the CI testing pipeline. |
 
+---
+## 🎯 Model Performance & Reproducibility (MLflow)
+
+The model deployed is an optimized `EfficientNetV2-S` which was systematically trained and tracked using **MLflow** to ensure the best performance and complete reproducibility of the final artifact.
+
+This systematic approach allowed for hyperparameter optimization and architecture comparison, leading to a final test **Accuracy of 96.15%**.
+
+### Comprehensive Metrics Tracking
+
+The following screenshot from the MLflow UI shows the full performance metrics, including the final result and the learning curve for the best performing run.
+
+![Metrics](./assets/MLFlow_Metrics.png)
+
+---
+
 ## Project Structure
 
 The project is organized into a clean, scalable structure:
