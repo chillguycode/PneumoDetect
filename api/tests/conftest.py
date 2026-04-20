@@ -16,7 +16,7 @@ def dummy_onnx_path() -> Path:
 
 @pytest.fixture
 def pipeline_instance(dummy_onnx_path: Path) -> InfPipeline:
-    return InfPipeline(model_path=str(dummy_onnx_path))
+      return InfPipeline(guard_model_path=str(dummy_onnx_path), main_model_path=str(dummy_onnx_path))
 
 @pytest.fixture
 def test_client(pipeline_instance: InfPipeline) -> TestClient:
