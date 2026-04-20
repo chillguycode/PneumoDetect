@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException, UploadFile, File, Depends
 from fastapi.middleware.cors import CORSMiddleware
-from .pipeline import InfPipeline
+from .pipeline import InfPipeline # Assuming your inference file is named pipeline.py
 from pathlib import Path
 from contextlib import asynccontextmanager
 
@@ -8,10 +8,18 @@ ml_models = {}
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Code to run on application startup
     print("--- Running app startup logic ---")
-    model_path = Path(__file__).parent.parent / "saved_models" / "efficientnet_v2_s_best.onnx"
-    ml_models["pipeline"] = InfPipeline(model_path=str(model_path))
+    
+    saved_models_dir = Path(__file__).parent.parent / "saved_models"
+    
+    GUARD_MODEL_PATH = saved_models_dir / "cnn_guard_best.onnx"
+    MAIN_MODEL_PATH = saved_models_dir / "efficientnet_v2_s_best.onnx" 
+    
+    ml_models["pipeline"] = InfPipeline(
+        guard_model_path=str(GUARD_MODEL_PATH),
+        main_model_path=str(MAIN_MODEL_PATH)
+    )
+    
     print("--- Startup complete ---")
     yield
     # Code to run on application shutdown
@@ -19,7 +27,7 @@ async def lifespan(app: FastAPI):
     ml_models.clear()
     print("--- Shutdown complete ---")
 
-app = FastAPI(title='PneumoDetect API', lifespan=lifespan)
+app = FastAPI(title='PneumoDetect (Guarded) API', lifespan=lifespan)
 
 origins = [
     "http://localhost",
@@ -32,12 +40,12 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
     allow_credentials=True,
-    allow_methods=["*"],  # Allows all methods (GET, POST, etc.)
-    allow_headers=["*"],  # Allows all headers
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 
-def get_pipeline():
+def get_pipeline() -> InfPipeline:
     return ml_models["pipeline"]
 
 
@@ -56,8 +64,15 @@ async def predict(
         result = pipeline.predict(image_bytes)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An internal server error occurred: {str(e)}")
+    
     if "error" in result:
-        raise HTTPException(status_code=400, detail=result["error"])
+        raise HTTPException(status_code=500, detail=result["details"])
 
-    # Step 4: If there was no error, return the successful result.
+    if result.get("guard_status") == "FAILED":
+        # Using 406 Not Acceptable status to signify input rejection
+        raise HTTPException(
+            status_code=406, 
+            detail=result["message"]
+        )
+
     return result

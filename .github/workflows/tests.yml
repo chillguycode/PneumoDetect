@@ -38,4 +38,4 @@ jobs:
         run: pytest
 
       - name: Generate Coverage
-        run: pytest --cov=api/tests
+        run: pytest --cov=api

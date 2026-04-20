@@ -4,12 +4,37 @@ const imagePreview = document.getElementById('imagePreview');
 const previewText = document.getElementById('previewText');
 const predictButton = document.getElementById('predictButton');
 const resultsDiv = document.getElementById('results');
+const resultGuardStatus = document.getElementById('resultGuardStatus');
+const resultGuardConfidence = document.getElementById('resultGuardConfidence');
 const resultClass = document.getElementById('resultClass');
 const resultConfidence = document.getElementById('resultConfidence');
 const loader = document.getElementById('loader');
 
+// Modal elements
+const errorModal = document.getElementById('errorModal');
+const modalTitle = document.getElementById('modalTitle');
+const modalMessage = document.getElementById('modalMessage');
+const modalCloseButton = document.getElementById('modalCloseButton');
+
 // Define the URL of your FastAPI endpoint
-const API_ENDPOINT = '/predict'
+const API_ENDPOINT = '/predict';
+
+/**
+ * Displays a custom message modal.
+ * @param {string} title - The title of the message (e.g., "Error", "Guard Rejection").
+ * @param {string} message - The main body of the message.
+ */
+function showMessageModal(title, message) {
+    modalTitle.textContent = title;
+    modalMessage.textContent = message;
+    errorModal.classList.remove('hidden');
+}
+
+// Event listener to close the modal
+modalCloseButton.addEventListener('click', () => {
+    errorModal.classList.add('hidden');
+});
+
 
 // Add an event listener for when a file is selected
 imageUpload.addEventListener('change', (event) => {
@@ -39,7 +64,7 @@ imageUpload.addEventListener('change', (event) => {
 predictButton.addEventListener('click', async () => {
     const file = imageUpload.files[0];
     if (!file) {
-        alert("Please select an image first!");
+        showMessageModal("Upload Required", "Please select an image first!");
         return;
     }
     
@@ -59,15 +84,31 @@ predictButton.addEventListener('click', async () => {
             body: formData,
         });
 
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-
         // Wait for the JSON response from the server
         const data = await response.json();
 
-        // Update the result elements with the prediction data
-        resultClass.textContent = data.class;
+        if (!response.ok) {
+            // Handle specific HTTP status codes
+            if (response.status === 406) {
+                // Guard Model Rejection: 406 Not Acceptable
+                showMessageModal("Not a Chest X-Ray", "This image doesn't appear to be a chest X-ray. Please upload a valid chest X-ray image.");
+            } else if (response.status === 400) {
+                // Bad Request (e.g., wrong file type)
+                showMessageModal("Invalid Input (400)", data.detail);
+            } else if (data.detail) {
+                // General FastAPI error with a detail field
+                showMessageModal(`Server Error (${response.status})`, data.detail);
+            } else {
+                // Generic network error
+                throw new Error('Network response was not ok');
+            }
+            return; // Stop execution on error
+        }
+
+        // --- SUCCESS RESPONSE ---
+
+        // Update the main prediction result elements
+        resultClass.textContent = data.prediction;
         // Format confidence to a percentage
         const confidencePercentage = (data.confidence * 100).toFixed(2);
         resultConfidence.textContent = `${confidencePercentage}%`;
@@ -77,7 +118,7 @@ predictButton.addEventListener('click', async () => {
 
     } catch (error) {
         console.error('Error:', error);
-        alert('An error occurred while making the prediction. Please check the console.');
+        showMessageModal("Connection Error", `An error occurred while making the prediction: ${error.message}`);
     } finally {
         // Hide the loader and re-enable the button
         loader.classList.add('hidden');
