@@ -9,6 +9,7 @@ PneumoDetect is a full-stack web application designed to classify chest X-ray im
 
 -   **FastAPI Backend:** A robust API built with FastAPI to handle image processing and prediction requests.
 -   **Efficient ML Inference:** Utilizes a pre-trained `EfficientNetV2-S` model converted to the ONNX format for fast, CPU-based inference.
+-   **Guard Model:** A CNN-based validation layer that rejects non-chest-X-ray images before running inference, preventing invalid predictions.
 -   **Clean & Responsive Frontend:** A simple user interface built with HTML, CSS, and vanilla JavaScript that works on both desktop and mobile.
 -   **Fully Containerized:** The entire application stack (Frontend Web Server & Backend API) is managed by Docker and Docker Compose for one-command setup.
 -   **Automated Testing:** A comprehensive test suite using `pytest` validates the backend logic and API endpoints.
@@ -72,6 +73,7 @@ The project is organized into a clean, scalable structure:
 │   └── nginx.conf
 ├── saved_models/
 │   └── efficientnet_v2_s_best.onnx-----# The trained .onnx model file
+│   └── cnn_guard_best.onnx-----# The trained guard .onnx model file
 ├── .dockerignore
 ├── docker-compose.yml
 ├── .gitignore
@@ -134,7 +136,7 @@ With Docker and Docker Compose, running the entire application is a single comma
 3.  A preview of the selected image will be displayed.
 4.  Click the **"Predict"** button.
 5.  The application will show a loading spinner while the backend processes the image.
-6.  The result, including the predicted class (**NORMAL** or **PNEUMONIA**) and the confidence score, will be displayed.
+6.  If the uploaded image is not detected as a chest X-ray, a rejection message will appear instead.
 
 ---
 
@@ -191,8 +193,10 @@ curl -X POST -F "file=@/path/to/your/xray.jpeg" http://localhost:8080/predict
 #### Success Response (200 OK)
 ```json
 {
-  "class": "PNEUMONIA",
-  "confidence": 0.9876
+    "guard_status": "PASSED",
+    "guard_confidence": 0.9823,
+    "prediction": "PNEUMONIA",
+    "confidence": 0.9876
 }
 ```
 
