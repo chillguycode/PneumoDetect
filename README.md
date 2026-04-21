@@ -3,6 +3,9 @@
 ![PneumoDetect Logo](./assets/Readme-Logo.png)
 ![Backend CI Pipeline](https://github.com/chillguycode/PneumoDetect/actions/workflows/tests.yml/badge.svg)
 
+
+#### 🔗 **Live Demo:** [pneumodetect-493921.web.app](https://pneumodetect-493921.web.app)
+
 PneumoDetect is a full-stack web application designed to classify chest X-ray images for the detection of pneumonia. It leverages a powerful deep learning model served via a high-performance FastAPI backend, with a clean, responsive front end for user interaction. The entire application is containerized with Docker for easy setup and is automatically tested using a GitHub Actions CI pipeline.
 
 ## Features
