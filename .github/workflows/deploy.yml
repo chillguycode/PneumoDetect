@@ -70,7 +70,6 @@ jobs:
             --port 8000 \
             --memory 2Gi \
             --cpu-boost \
-            --startup-cpu-boost \
             --timeout 600
 
   deploy-frontend:
