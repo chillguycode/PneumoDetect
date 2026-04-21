@@ -182,7 +182,7 @@ For local development, all requests go through the Nginx proxy at port `8080`. I
 -   **Method:** `POST`
 -   **Description:** Uploads an image file for pneumonia classification.
 -   **Local URL:** `http://localhost:8080/predict`
--   **Production URL:** `https://pneumodetect-720802368286.asia-south1.run.app/predict`   
+-   **Production URL:** `https://pneumodetect-backend-720802368286.asia-south1.run.app/predict`   
 -   **Body:** `multipart/form-data` with a key named `file`.
 
 **Example using `curl`:**

@@ -15,7 +15,7 @@ const modalMessage = document.getElementById('modalMessage');
 const modalCloseButton = document.getElementById('modalCloseButton');
 
 // Define the URL of your FastAPI endpoint
-const API_ENDPOINT = 'https://pneumodetect-720802368286.asia-south1.run.app/predict';
+const API_ENDPOINT = 'https://pneumodetect-backend-720802368286.asia-south1.run.app/predict';
 
 /**
  * Displays a custom message modal.
