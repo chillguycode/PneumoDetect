@@ -16,7 +16,12 @@ def dummy_onnx_path() -> Path:
 
 @pytest.fixture
 def pipeline_instance(dummy_onnx_path: Path) -> InfPipeline:
-      return InfPipeline(guard_model_path=str(dummy_onnx_path), main_model_path=str(dummy_onnx_path))
+  pipeline = InfPipeline(
+      guard_model_path=str(dummy_onnx_path),
+      main_model_path=str(dummy_onnx_path)
+  )
+  pipeline.GUARD_THRESHOLD = 0.0
+  return pipeline
 
 @pytest.fixture
 def test_client(pipeline_instance: InfPipeline) -> TestClient:

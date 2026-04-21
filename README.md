@@ -13,7 +13,7 @@ PneumoDetect is a full-stack web application designed to classify chest X-ray im
 -   **Clean & Responsive Frontend:** A simple user interface built with HTML, CSS, and vanilla JavaScript that works on both desktop and mobile.
 -   **Fully Containerized:** The entire application stack (Frontend Web Server & Backend API) is managed by Docker and Docker Compose for one-command setup.
 -   **Automated Testing:** A comprehensive test suite using `pytest` validates the backend logic and API endpoints.
--   **Continuous Integration:** A GitHub Actions workflow automatically runs all tests on every push and pull request to ensure code quality.
+-   **Continuous Integration & Deployment:** A GitHub Actions workflow automatically runs all tests and deploys to Google Cloud Run and Firebase Hosting on every push to main.
 
 ## Tech Stack
 
@@ -27,9 +27,11 @@ PneumoDetect is a full-stack web application designed to classify chest X-ray im
 | | ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black) | Handling user interaction and API calls. |
 | **Testing** | ![Pytest](https://img.shields.io/badge/Pytest-0A9EDC?style=for-the-badge&logo=pytest&logoColor=white) | A robust framework for testing the Python backend. |
 | **Deployment & CI/CD**| ![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white) | Containerization of the application. |
-| | **Docker Compose** | Orchestrating the multi-container setup. |
-| | ![Nginx](https://img.shields.io/badge/Nginx-009639?style=for-the-badge&logo=nginx&logoColor=white) | Serving the frontend and acting as a reverse proxy. |
-| | ![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?style=for-the-badge&logo=github-actions&logoColor=white) | Automating the CI testing pipeline. |
+| | **Docker Compose** | Orchestrating the multi-container setup for local development. |
+| | ![Nginx](https://img.shields.io/badge/Nginx-009639?style=for-the-badge&logo=nginx&logoColor=white) | Serving the frontend and reverse proxy for local development. |
+| | ![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?style=for-the-badge&logo=github-actions&logoColor=white) | CI testing and deployment pipeline |
+| | ![Google Cloud Run](https://img.shields.io/badge/Cloud_Run-4285F4?style=for-the-badge&logo=google-cloud&logoColor=white) | Serverless backend deployment. |
+| | ![Firebase](https://img.shields.io/badge/Firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=black) | Frontend hosting via Firebase Hosting. |
 
 ---
 ## 🎯 Model Performance & Reproducibility (MLflow)
@@ -55,6 +57,7 @@ The project is organized into a clean, scalable structure:
 ├── .github/
 │   └── workflows/
 │       └── tests.yml-------------------# GitHub Actions workflow for CI
+│       └── deploy.yml------------------# GitHub Actions deployment to GCP
 ├── api/
 │   ├── tests/--------------------------# Backend tests
 │   │   ├── conftest.py-----------------# Pytest fixtures and test setup
@@ -105,10 +108,6 @@ You must have the following software installed:
     git clone https://github.com/chillguycode/PneumoDetect.git
     cd PneumoDetect
     ```
-
-2.  **Update the CI Badge (Optional):**
-    In `README.md`, replace `YOUR_USERNAME` and `YOUR_REPO_NAME` in the badge URL at the top of the file with your actual GitHub username and repository name.
-
 ---
 
 ## Running the Application
@@ -176,13 +175,14 @@ You can view the status and logs of the CI runs under the "Actions" tab of this 
 
 ## API Endpoint Documentation
 
-The API is not directly exposed to the host machine. All requests must go through the Nginx proxy running on port `8080`.
+For local development, all requests go through the Nginx proxy at port `8080`. In production, the API is directly available at the Cloud Run URL.
 
 ### `/predict`
 
 -   **Method:** `POST`
 -   **Description:** Uploads an image file for pneumonia classification.
--   **URL:** `http://localhost:8080/predict`
+-   **Local URL:** `http://localhost:8080/predict`
+-   **Production URL:** `https://pneumodetect-720802368286.asia-south1.run.app/predict`   
 -   **Body:** `multipart/form-data` with a key named `file`.
 
 **Example using `curl`:**
@@ -197,7 +197,7 @@ curl -X POST -F "file=@/path/to/your/xray.jpeg" http://localhost:8080/predict
     "guard_confidence": 0.9823,
     "prediction": "PNEUMONIA",
     "confidence": 0.9876
-}
+} 
 ```
 
 #### Error Response (400 Bad Request)
@@ -206,3 +206,4 @@ If the file is not an image:
 {
   "detail": "File is not an image. Uploaded file type is: application/pdf"
 }
+```
