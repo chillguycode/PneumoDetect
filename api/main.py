@@ -29,14 +29,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title='PneumoDetect (Guarded) API', lifespan=lifespan)
 
-origins = [
-    "http://localhost",
-    "http://localhost:8000",
-    "http://127.0.0.1",
-    "http://127.0.0.1:8000",
-    "https://pneumodetect-493921.web.app",
-    "https://pneumodetect-493921.firebaseapp.com"
-]
+origins = ["*"]
 
 app.add_middleware(
     CORSMiddleware,
