@@ -70,7 +70,8 @@ jobs:
             --port 8000 \
             --memory 2Gi \
             --cpu-boost \
-            --timeout 600
+            --timeout 600 \
+            --allow-unauthenticated
 
   deploy-frontend:
     needs: test
