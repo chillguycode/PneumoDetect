@@ -14,8 +14,19 @@ const modalTitle = document.getElementById('modalTitle');
 const modalMessage = document.getElementById('modalMessage');
 const modalCloseButton = document.getElementById('modalCloseButton');
 
+//Heatmap elements
+const pneumoCam = document.getElementById('pneumoCam');
+const xrayOverlay = document.getElementById('xrayOverlay');
+const heatmapOverlay = document.getElementById('heatmapOverlay');
+const downloadBtn = document.getElementById('downloadBtn');
+const mergeCanvas = document.getElementById('mergeCanvas');
+
 // Define the URL of your FastAPI endpoint
-const API_ENDPOINT = 'https://pneumodetect-backend-720802368286.asia-south1.run.app/predict';
+//const API_ENDPOINT = 'https://pneumodetect-backend-720802368286.asia-south1.run.app/predict';
+
+const API_ENDPOINT = window.location.hostname === 'localhost'
+      ? '/predict'
+      : 'https://pneumodetect-backend-720802368286.asia-south1.run.app/predict';
 
 /**
  * Displays a custom message modal.
@@ -55,6 +66,11 @@ imageUpload.addEventListener('change', (event) => {
         
         // Hide any previous results
         resultsDiv.classList.add('hidden');
+	pneumoCam.classList.add('hidden');
+	heatmapOverlay.classList.add('hidden');
+	heatmapOverlay.src='';
+	xrayOverlay.src='';
+
     }
 });
 
@@ -113,6 +129,12 @@ predictButton.addEventListener('click', async () => {
         
         // Show the results
         resultsDiv.classList.remove('hidden');
+	
+	// The CAM Heatmap
+	xrayOverlay.src = `data:image/png;base64,${data.xray}`;
+	heatmapOverlay.src = `data:image/png;base64,${data.heatmap}`;
+	heatmapOverlay.classList.remove('hidden');
+	pneumoCam.classList.remove('hidden');
 
     } catch (error) {
         console.error('Error:', error);
@@ -122,4 +144,27 @@ predictButton.addEventListener('click', async () => {
         loader.classList.add('hidden');
         predictButton.disabled = false;
     }
+});
+
+
+downloadBtn.addEventListener('click', () => {
+	const ctx = mergeCanvas.getContext('2d');
+	const img1 = new Image();
+	const img2 = new Image();
+
+	img1.onload = () => {
+	  ctx.drawImage(img1, 0, 0, 224, 224);
+	  img2.onload = () => {
+	      ctx.globalAlpha = 0.5;
+	      ctx.drawImage(img2, 0, 0, 224, 224);
+	      ctx.globalAlpha = 1.0;
+
+	      const link = document.createElement('a');
+	      link.download = 'pneumocam.png';
+	      link.href = mergeCanvas.toDataURL('image/png');
+	      link.click();
+	  };
+	  img2.src = heatmapOverlay.src;
+	};
+	img1.src = xrayOverlay.src;
 });

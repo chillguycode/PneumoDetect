@@ -183,3 +183,81 @@ p {
     cursor: pointer;
     width: 100%;
 }
+
+#pneumoCam {
+    margin-top:1.5rem;
+    background-color:#ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+}
+
+#overlayContainer {
+    position:relative;
+    width:100%;
+    line-height:0;
+    overflow:hidden;
+    border-radius: 8px 8px 0 0;
+}
+
+
+#xrayOverlay {
+    width:100%;
+    display:block;
+}
+
+#heatmapOverlay {
+    position:absolute;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    opacity:0.5;
+}
+
+#pneumoCamStrip {
+    display:flex;
+    justify-content: space-between;
+    align-items:center;
+    padding:0.6rem 1rem;
+    background-color: #ffffff;
+    overflow:visible;
+}
+
+#pneumoCamStrip span {
+    font-weight:bold;
+    font-size:0.85rem;
+    color:#2c3e50;
+    letter-spacing:0.05em;
+}
+
+#downloadBtn {
+    position:relative;
+    cursor:pointer;
+    color:#2c3e50;
+    display:flex;
+    align-items:center;
+}
+
+#downloadBtn svg {
+    width:20px;
+    height:20px;
+}
+
+#downloadBtn .tooltip {
+    display:none;
+    position:absolute;
+    bottom:125%;
+    left:50%;
+    transform:translateX(-50%);
+    background:#333;
+    color:white;
+    padding: 4px 8px;
+    border-radius:4px;
+    font-size:0.75rem;
+    white-space:nowrap;
+}
+
+#downloadBtn:hover .tooltip {
+    display:block;
+}

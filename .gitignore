@@ -19,3 +19,8 @@ __pycache__/
 # Extras
 .coverage
 act
+.secrets
+
+
+#LSP artifacts
+pyrightconfig.json
