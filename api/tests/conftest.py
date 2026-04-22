@@ -24,6 +24,7 @@ def pipeline_instance(dummy_onnx_path: Path) -> InfPipeline:
             guard_model_path=str(dummy_onnx_path),
             main_model_path=str(dummy_onnx_path)
         )
+    pipeline.eigencam_session.run.return_value = [np.zeros((1, 1280, 7, 7), dtype=np.float32)]
     mock_guard = MagicMock()
     mock_guard.run.return_value = [np.array([[0.01, 0.99]])]
     mock_guard.get_inputs.return_value = pipeline.guard_session.get_inputs()
