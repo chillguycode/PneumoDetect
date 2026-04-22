@@ -13,6 +13,7 @@ PneumoDetect is a full-stack web application designed to classify chest X-ray im
 -   **FastAPI Backend:** A robust API built with FastAPI to handle image processing and prediction requests.
 -   **Efficient ML Inference:** Utilizes a pre-trained `EfficientNetV2-S` model converted to the ONNX format for fast, CPU-based inference.
 -   **Guard Model:** A CNN-based validation layer that rejects non-chest-X-ray images before running inference, preventing invalid predictions.
+-   **PneumoCam (EigenCAM Heatmap):** After a successful prediction, a saliency heatmap is overlaid on the processed X-ray highlighting the regions the model focused on. Implemented using EigenCAM. The composite image can be downloaded directly.
 -   **Clean & Responsive Frontend:** A simple user interface built with HTML, CSS, and vanilla JavaScript that works on both desktop and mobile.
 -   **Fully Containerized:** The entire application stack (Frontend Web Server & Backend API) is managed by Docker and Docker Compose for one-command setup.
 -   **Automated Testing:** A comprehensive test suite using `pytest` validates the backend logic and API endpoints.
@@ -70,6 +71,7 @@ The project is organized into a clean, scalable structure:
 │   ├── Dockerfile----------------------# Blueprint for the backend container
 │   ├── main.py-------------------------# Main FastAPI application logic
 │   └── pipeline.py---------------------# Handles the ONNX model inference
+│   └── eigencam.py---------------------# Handles the EigenCAM Heatmap Utilities
 ├── frontend/
 │   ├── assets/
 │   ├── css/
@@ -139,6 +141,8 @@ With Docker and Docker Compose, running the entire application is a single comma
 4.  Click the **"Predict"** button.
 5.  The application will show a loading spinner while the backend processes the image.
 6.  If the uploaded image is not detected as a chest X-ray, a rejection message will appear instead.
+7.  If the image passes the guard check, a PneumoCam heatmap overlay will appear showing the regions that influenced the prediction. 
+8.  Click the download icon to save the composite image.
 
 ---
 
@@ -199,7 +203,9 @@ curl -X POST -F "file=@/path/to/your/xray.jpeg" http://localhost:8080/predict
     "guard_status": "PASSED",
     "guard_confidence": 0.9823,
     "prediction": "PNEUMONIA",
-    "confidence": 0.9876
+    "confidence": 0.9876,
+    "heatmap": "<base64 PNG string>",
+    "xray": "<base64 PNG string>"
 } 
 ```
 
