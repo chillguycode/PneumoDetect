@@ -7,7 +7,7 @@ from fastapi.testclient import TestClient
 from ..main import app, InfPipeline, get_pipeline
 from .create_dummy_model import generate_dummy_model
 
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 import numpy as np
 
 @pytest.fixture(scope="session")
@@ -19,10 +19,11 @@ def dummy_onnx_path() -> Path:
 
 @pytest.fixture
 def pipeline_instance(dummy_onnx_path: Path) -> InfPipeline:
-    pipeline = InfPipeline(
-        guard_model_path=str(dummy_onnx_path),
-        main_model_path=str(dummy_onnx_path)
-    )
+    with patch('api.pipeline.create_eigencam_session', return_value=MagicMock()):
+        pipeline = InfPipeline(
+            guard_model_path=str(dummy_onnx_path),
+            main_model_path=str(dummy_onnx_path)
+        )
     mock_guard = MagicMock()
     mock_guard.run.return_value = [np.array([[0.01, 0.99]])]
     mock_guard.get_inputs.return_value = pipeline.guard_session.get_inputs()
