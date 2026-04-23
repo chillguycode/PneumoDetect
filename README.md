@@ -14,10 +14,12 @@ PneumoDetect is a full-stack web application designed to classify chest X-ray im
 -   **Efficient ML Inference:** Utilizes a pre-trained `EfficientNetV2-S` model converted to the ONNX format for fast, CPU-based inference.
 -   **Guard Model:** A CNN-based validation layer that rejects non-chest-X-ray images before running inference, preventing invalid predictions.
 -   **PneumoCam (EigenCAM Heatmap):** After a successful prediction, a saliency heatmap is overlaid on the processed X-ray highlighting the regions the model focused on. Implemented using EigenCAM. The composite image can be downloaded directly.
+-   **Zero Data Retention:** Medical images are processed entirely in-memory via the stateless REST API - no patient data is stored, logged, or persisted at any point. Privacy-preserving by design.
 -   **Clean & Responsive Frontend:** A simple user interface built with HTML, CSS, and vanilla JavaScript that works on both desktop and mobile.
 -   **Fully Containerized:** The entire application stack (Frontend Web Server & Backend API) is managed by Docker and Docker Compose for one-command setup.
 -   **Automated Testing:** A comprehensive test suite using `pytest` validates the backend logic and API endpoints.
 -   **Continuous Integration & Deployment:** A GitHub Actions workflow automatically runs all tests and deploys to Google Cloud Run and Firebase Hosting on every push to main.
+ 
 
 ## Tech Stack
 
