@@ -1,10 +1,7 @@
 import onnxruntime
-import torchvision.transforms as transforms
 from PIL import Image
 import io
 import numpy as np
-import torch
-import torch.nn.functional as F 
 from api.eigencam import create_eigencam_session, EIGENCAM_TARGET_NODE, get_feature_maps, compute_eigencam, upsample_heatmap, render_heatmap
 import base64
 
@@ -24,47 +21,55 @@ class InfPipeline:
         self.main_input_name = self.main_session.get_inputs()[0].name
         print(f"Main Model input name: {self.main_input_name}")
 
-        self.display_transforms = transforms.Compose([
-            transforms.Resize(256),
-            transforms.CenterCrop(224),
-            ])
-        self.inference_transforms = transforms.Compose([
-            transforms.ToTensor(),
-            transforms.Normalize(
-                mean=[0.485, 0.456, 0.406],
-                std=[0.229, 0.224, 0.225]
-                )
-            ])
+        print("Initialising EigenCAM Session")
+        self.eigencam_session = create_eigencam_session(main_model_path,EIGENCAM_TARGET_NODE)
 
         print("Inference pipeline initialised successfully!")
 
 
-        self.eigencam_session = create_eigencam_session(main_model_path,EIGENCAM_TARGET_NODE)
 
-    def _process_image(self, image_bytes: bytes) -> tuple[torch.Tensor, Image.Image]:
-        """Loads and transforms image bytes into a batch tensor."""
+    def _process_image(self, image_bytes: bytes) -> tuple[np.ndarray, Image.Image]:
+        """Loads and transforms image bytes into a batch"""
         image: Image.Image = Image.open(io.BytesIO(image_bytes))
         if image.mode != "RGB":
             image = image.convert("RGB")
-        display_image:Image.Image = self.display_transforms(image)
-        input_tensor: torch.Tensor = self.inference_transforms(display_image).unsqueeze(0)
-        # Add batch dimension (B, C, H, W)
-        return input_tensor, display_image
 
-    def _run_onnx_inference(self, session: onnxruntime.InferenceSession, input_name: str, input_batch: torch.Tensor) -> tuple[float, int]:
-        """Runs inference and calculates the max confidence and predicted index."""
-        
-        onnx_input = {input_name: input_batch.numpy()}
-        raw_output: list[np.ndarray] = session.run(None, onnx_input)
-        
-        logits_np = raw_output[0][0] 
-        logits_tensor = torch.from_numpy(logits_np)
-        
-        probabilities = F.softmax(logits_tensor, dim=0) 
-        
-        confidence_tensor, predicted_idx_tensor = torch.max(probabilities, 0)
+        #Resize
+        w, h = image.size
+        if h < w :
+            image = image.resize((int(w * 256 / h), 256), Image.Resampling.BILINEAR)
+        else:
+            image = image.resize((256, int(h * 256 / w)), Image.Resampling.BILINEAR)
 
-        return confidence_tensor.item(), predicted_idx_tensor.item()
+        #Centre Crop
+        w, h = image.size
+        left, top = (w - 224) // 2, (h - 224) //2
+        display_image: Image.Image = image.crop((left,top, left+224, top+224))
+
+        #To Tensor & Normalise
+        arr = np.array(display_image, dtype=np.float32) / 255.0          # HxWxC
+        arr = arr.transpose(2, 0, 1)                                       # CxHxW
+        mean = np.array([0.485, 0.456, 0.406], dtype=np.float32).reshape(3, 1, 1)
+        std  = np.array([0.229, 0.224, 0.225], dtype=np.float32).reshape(3, 1, 1)
+        arr = (arr - mean) / std
+        input_batch = arr[np.newaxis, :]                                   # 1xCxHxW
+
+        return input_batch, display_image
+
+
+    def _run_onnx_inference(self, session: onnxruntime.InferenceSession, input_name: str, input_batch: np.ndarray) -> tuple[float, int]:
+        raw_output = session.run(None, {input_name: input_batch})
+        logits = raw_output[0][0]
+
+        # Numerically stable softmax
+        exp_logits = np.exp(logits - logits.max())
+        probabilities = exp_logits / exp_logits.sum()
+
+        predicted_idx = int(np.argmax(probabilities))
+        confidence = float(probabilities[predicted_idx])
+
+        return confidence, predicted_idx
+
 
     def predict(self, image_bytes:bytes) -> dict:
         try:
@@ -85,7 +90,7 @@ class InfPipeline:
                 )
 
                 # Get Feature Maps
-                feature_maps = get_feature_maps(self.eigencam_session, input_batch.numpy(), EIGENCAM_TARGET_NODE)
+                feature_maps = get_feature_maps(self.eigencam_session, input_batch, EIGENCAM_TARGET_NODE)
                 activation_map = compute_eigencam(feature_maps[0])
                 heatmap = upsample_heatmap(activation_map, (224,224))
                 heatmap_image = render_heatmap(heatmap)

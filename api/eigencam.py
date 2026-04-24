@@ -2,7 +2,6 @@ from PIL import Image
 import onnx
 import onnxruntime as ort
 import numpy as np
-from matplotlib import cm
 import io
 import base64
 
@@ -55,8 +54,15 @@ def upsample_heatmap(activation_map: np.ndarray, target_size:tuple[int,int]) -> 
     return heatmap
 
 
+def _jet(t):
+    r = np.clip(1.5 - np.abs(4 * t - 3), 0, 1)
+    g = np.clip(1.5 - np.abs(4 * t - 2), 0, 1)
+    b = np.clip(1.5 - np.abs(4 * t - 1), 0, 1)
+    return np.stack([r, g, b, np.ones_like(t)], axis=-1)
+
+
 def render_heatmap(heatmap: np.ndarray):
-    rgba = cm.jet(heatmap)
+    rgba = _jet(heatmap)
     rgba_uint8 = (rgba*255).astype(np.uint8)
     heatmap_img = Image.fromarray(rgba_uint8)
 
