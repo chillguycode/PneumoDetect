@@ -26,9 +26,11 @@ def generate_dummy_model(output_path: Path):
     )
 
     model = helper.make_model(graph, opset_imports=[helper.make_opsetid('', 13)])
+    model.ir_version = 8
     onnx.checker.check_model(model)
     onnx.save(model, str(output_path))
     print("Dummy model generated successfully")
+
 
 if __name__ == "__main__":
     MODEL_DIR = Path(__file__).parent.parent.parent/ "saved_models_test"
